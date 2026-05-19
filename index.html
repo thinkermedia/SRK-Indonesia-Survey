@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Indonesia Mining Consultancy Survey | SRK Consulting</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0D1B2A;
+    --teal: #1B6CA8;
+    --teal-light: #2B8AC7;
+    --gold: #C9992C;
+    --gold-light: #E8B84B;
+    --off-white: #F5F3EE;
+    --mid-grey: #8A9BAE;
+    --light-grey: #E8EDF2;
+    --white: #FFFFFF;
+    --danger: #C0392B;
+    --success: #1A7A4E;
+    --text: #1A2332;
+    --text-light: #4A5A6A;
+    --progress-h: 4px;
+    --card-radius: 12px;
+    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ─── PROGRESS BAR ─── */
+  #progress-bar-wrap {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    height: var(--progress-h);
+    background: rgba(255,255,255,0.1);
+  }
+  #progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+
+  /* ─── HEADER ─── */
+  #header {
+    width: 100%; max-width: 760px;
+    padding: 28px 24px 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  #header .logo-badge {
+    background: var(--gold);
+    color: var(--navy);
+    font-family: 'DM Serif Display', serif;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    padding: 5px 12px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  #header .tagline {
+    color: var(--mid-grey);
+    font-size: 12px;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+  }
+
+  /* ─── MAIN CARD ─── */
+  #survey-wrap {
+    width: 100%; max-width: 760px;
+    padding: 24px 24px 60px;
+    flex: 1;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ─── INTRO ─── */
+  .intro-card {
+    background: var(--white);
+    border-radius: var(--card-radius);
+    padding: 48px 44px;
+    margin-top: 16px;
+  }
+  .intro-card h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--navy);
+    line-height: 1.25;
+    margin-bottom: 16px;
+  }
+  .intro-card .intro-meta {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .intro-card .intro-meta span {
+    font-size: 12px; font-weight: 500;
+    color: var(--teal);
+    background: rgba(27,108,168,0.08);
+    padding: 4px 10px; border-radius: 20px;
+  }
+  .intro-card p {
+    color: var(--text-light);
+    font-size: 15px; line-height: 1.65;
+    margin-bottom: 14px;
+  }
+  .intro-card .privacy-note {
+    font-size: 12px; color: var(--mid-grey);
+    border-top: 1px solid var(--light-grey);
+    padding-top: 16px; margin-top: 8px;
+  }
+
+  /* ─── QUESTION CARD ─── */
+  .q-card {
+    background: var(--white);
+    border-radius: var(--card-radius);
+    padding: 36px 40px;
+    margin-top: 16px;
+    animation: slideIn 0.3s var(--transition) both;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-section-label {
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .q-number {
+    font-size: 12px; font-weight: 500;
+    color: var(--mid-grey);
+    margin-bottom: 8px;
+  }
+  .q-text {
+    font-size: 17px; font-weight: 500;
+    color: var(--navy);
+    line-height: 1.45;
+    margin-bottom: 6px;
+  }
+  .q-sub {
+    font-size: 13px; color: var(--text-light);
+    margin-bottom: 22px; line-height: 1.5;
+  }
+  .q-instruction {
+    font-size: 12px; font-weight: 500;
+    color: var(--teal);
+    background: rgba(27,108,168,0.07);
+    padding: 7px 12px; border-radius: 6px;
+    margin-bottom: 20px;
+    display: inline-block;
+  }
+
+  /* ─── OPTIONS ─── */
+  .options-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .option-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 16px;
+    border: 1.5px solid var(--light-grey);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all var(--transition);
+    user-select: none;
+  }
+  .option-item:hover {
+    border-color: var(--teal-light);
+    background: rgba(27,108,168,0.04);
+  }
+  .option-item.selected {
+    border-color: var(--teal);
+    background: rgba(27,108,168,0.07);
+  }
+  /* disqualify options look identical to normal options — no greying */
+  .option-check {
+    width: 18px; height: 18px; flex-shrink: 0;
+    border: 2px solid var(--mid-grey);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all var(--transition);
+  }
+  .option-item.radio .option-check { border-radius: 50%; }
+  .option-item.selected .option-check {
+    background: var(--teal); border-color: var(--teal);
+  }
+  .option-check svg { display: none; }
+  .option-item.selected .option-check svg { display: block; }
+  .option-label {
+    font-size: 14px; color: var(--text);
+    line-height: 1.4;
+    flex: 1;
+  }
+  .option-item.selected .option-label { color: var(--navy); font-weight: 500; }
+
+  /* ─── OPEN TEXT ─── */
+  .open-text-wrap { margin-top: 12px; }
+  .open-text-input {
+    width: 100%;
+    border: 1.5px solid var(--light-grey);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; color: var(--text);
+    resize: vertical; min-height: 80px;
+    transition: border-color var(--transition);
+    background: var(--off-white);
+  }
+  .open-text-input:focus {
+    outline: none; border-color: var(--teal);
+    background: var(--white);
+  }
+
+  /* ─── ACCORDION GRID (Q2 / Q3) ─── */
+  .acc-wrap { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+
+  .acc-item {
+    border: 1.5px solid var(--light-grey);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color var(--transition);
+  }
+  .acc-item.has-answer { border-color: var(--teal); }
+
+  .acc-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 16px;
+    cursor: pointer;
+    background: var(--white);
+    user-select: none;
+    gap: 10px;
+  }
+  .acc-header:hover { background: rgba(27,108,168,0.03); }
+  .acc-name {
+    font-size: 14px; font-weight: 500; color: var(--navy);
+    flex: 1;
+  }
+  .acc-summary {
+    font-size: 11px; color: var(--mid-grey);
+    flex-shrink: 0;
+  }
+  .acc-item.has-answer .acc-summary { color: var(--teal); font-weight: 600; }
+  .acc-chevron {
+    flex-shrink: 0; color: var(--mid-grey);
+    transition: transform 0.2s;
+    font-size: 12px;
+  }
+  .acc-item.open .acc-chevron { transform: rotate(180deg); }
+
+  .acc-body {
+    display: none;
+    padding: 12px 16px 16px;
+    background: var(--off-white);
+    border-top: 1px solid var(--light-grey);
+  }
+  .acc-item.open .acc-body { display: block; }
+
+  /* discipline checkboxes inside accordion */
+  .disc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  @media (max-width: 520px) { .disc-grid { grid-template-columns: 1fr; } }
+
+  .disc-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px;
+    border: 1.5px solid var(--light-grey);
+    border-radius: 7px;
+    cursor: pointer;
+    background: var(--white);
+    transition: all var(--transition);
+    user-select: none;
+  }
+  .disc-item:hover { border-color: var(--teal-light); background: rgba(27,108,168,0.04); }
+  .disc-item.checked { border-color: var(--teal); background: rgba(27,108,168,0.07); }
+  .disc-box {
+    width: 16px; height: 16px; flex-shrink: 0;
+    border: 2px solid var(--mid-grey); border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all var(--transition);
+  }
+  .disc-item.checked .disc-box { background: var(--teal); border-color: var(--teal); }
+  .disc-item.checked .disc-box::after { content: ''; display: block; width:8px;height:6px; border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translate(1px,-1px); }
+  .disc-label { font-size: 12px; color: var(--text); line-height: 1.3; }
+  .disc-item.checked .disc-label { color: var(--navy); font-weight: 500; }
+
+  /* also: leader single-select within same accordion body */
+  .acc-leader-label {
+    font-size: 11px; font-weight: 600; color: var(--gold);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-top: 14px; margin-bottom: 6px;
+  }
+  .leader-opts { display: flex; flex-wrap: wrap; gap: 5px; }
+  .leader-pill {
+    padding: 5px 11px;
+    border: 1.5px solid var(--light-grey);
+    border-radius: 20px;
+    font-size: 12px; color: var(--text);
+    cursor: pointer; background: var(--white);
+    transition: all var(--transition);
+    user-select: none;
+  }
+  .leader-pill:hover { border-color: var(--gold); color: var(--gold); }
+  .leader-pill.selected { background: var(--gold); border-color: var(--gold); color: var(--white); font-weight: 600; }
+
+  /* rating stars / buttons inside accordion (Q3) */
+  .crit-list { display: flex; flex-direction: column; gap: 10px; }
+  .crit-row { display: flex; align-items: center; gap: 10px; }
+  .crit-name { font-size: 12px; color: var(--text); flex: 1; min-width: 0; }
+  .star-btns { display: flex; gap: 4px; flex-shrink: 0; }
+  .star-btn {
+    width: 32px; height: 32px;
+    border: 1.5px solid var(--light-grey);
+    border-radius: 6px;
+    background: var(--white);
+    font-size: 12px; font-weight: 600; color: var(--text-light);
+    cursor: pointer;
+    transition: all var(--transition);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .star-btn:hover { border-color: var(--teal); color: var(--teal); }
+  .star-btn.active { background: var(--teal); border-color: var(--teal); color: var(--white); }
+  .star-scale-labels { display: flex; justify-content: space-between; margin-top: 2px; }
+  .star-scale-labels span { font-size: 10px; color: var(--mid-grey); }
+
+  /* ─── MARKET SHARE SLIDERS ─── */
+  .market-share-wrap { display: flex; flex-direction: column; gap: 16px; }
+  .ms-row { display: flex; flex-direction: column; gap: 6px; }
+  .ms-label {
+    font-size: 13px; font-weight: 500; color: var(--text);
+    display: flex; justify-content: space-between;
+  }
+  .ms-label span { color: var(--teal); font-weight: 600; }
+  .ms-input {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .ms-range {
+    flex: 1;
+    accent-color: var(--teal);
+    cursor: pointer;
+  }
+  .ms-number {
+    width: 60px;
+    border: 1.5px solid var(--light-grey);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 14px; font-weight: 500;
+    text-align: center;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--navy);
+    background: var(--off-white);
+  }
+  .ms-total {
+    font-size: 12px; font-weight: 600;
+    padding: 8px 14px; border-radius: 6px;
+    margin-top: 4px;
+    text-align: right;
+  }
+  .ms-total.ok { background: rgba(26,122,78,0.1); color: var(--success); }
+  .ms-total.err { background: rgba(192,57,43,0.1); color: var(--danger); }
+
+  /* ─── FOLLOW-UP BLOCK ─── */
+  .followup-block {
+    margin-top: 28px;
+    padding-top: 22px;
+    border-top: 1.5px solid var(--light-grey);
+  }
+  .followup-block .q-text { font-size: 15px; }
+
+  /* ─── RATING SCALE ─── */
+  .rating-scale {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .rating-btn {
+    width: 44px; height: 44px;
+    border: 1.5px solid var(--light-grey);
+    border-radius: 8px;
+    background: none; cursor: pointer;
+    font-size: 14px; font-weight: 500; color: var(--text);
+    transition: all var(--transition);
+    font-family: 'DM Sans', sans-serif;
+  }
+  .rating-btn:hover { border-color: var(--teal); color: var(--teal); }
+  .rating-btn.selected {
+    background: var(--teal); border-color: var(--teal);
+    color: var(--white);
+  }
+  .rating-labels {
+    display: flex; justify-content: space-between;
+    margin-top: 6px;
+  }
+  .rating-labels span { font-size: 11px; color: var(--mid-grey); }
+
+  /* ─── VALIDATION ─── */
+  .error-msg {
+    display: none;
+    font-size: 12px; color: var(--danger);
+    margin-top: 8px; font-weight: 500;
+  }
+  .error-msg.show { display: block; }
+
+  /* ─── DISQUALIFY / END ─── */
+  .end-card {
+    background: var(--white);
+    border-radius: var(--card-radius);
+    padding: 56px 44px;
+    margin-top: 16px;
+    text-align: center;
+  }
+  .end-card .end-icon {
+    font-size: 48px; margin-bottom: 20px;
+  }
+  .end-card h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px; color: var(--navy);
+    margin-bottom: 14px;
+  }
+  .end-card p {
+    font-size: 15px; color: var(--text-light);
+    line-height: 1.65; max-width: 480px; margin: 0 auto;
+  }
+  .end-card .end-brand {
+    margin-top: 32px;
+    font-size: 11px; color: var(--mid-grey);
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .end-card.disq .end-icon::after { content: '🙏'; }
+  .end-card.complete .end-icon::after { content: '✅'; }
+
+  /* ─── BUTTONS ─── */
+  .btn-row {
+    display: flex; justify-content: flex-end;
+    gap: 10px; margin-top: 28px;
+  }
+  .btn {
+    padding: 13px 28px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer; border: none;
+    transition: all var(--transition);
+  }
+  .btn-primary {
+    background: var(--navy);
+    color: var(--white);
+  }
+  .btn-primary:hover { background: var(--teal); }
+  .btn-primary:disabled { background: var(--mid-grey); cursor: not-allowed; }
+  .btn-secondary {
+    background: none;
+    color: var(--text-light);
+    border: 1.5px solid var(--light-grey);
+  }
+  .btn-secondary:hover { border-color: var(--navy); color: var(--navy); }
+
+  /* ─── SAVING INDICATOR ─── */
+  #saving-toast {
+    position: fixed; bottom: 20px; right: 20px;
+    background: var(--navy); color: var(--white);
+    padding: 10px 18px; border-radius: 8px;
+    font-size: 13px; font-weight: 500;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  #saving-toast.show { opacity: 1; }
+
+  /* ─── FOOTER ─── */
+  #footer {
+    width: 100%; text-align: center;
+    padding: 20px; color: rgba(255,255,255,0.25);
+    font-size: 11px; letter-spacing: 0.06em;
+  }
+
+  @media (max-width: 600px) {
+    .intro-card, .q-card, .end-card { padding: 28px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+
+<div id="header">
+  <div class="logo-badge">SRK Consulting</div>
+  <div class="tagline">Indonesia Market Research · Conducted by Thinker Media Group</div>
+</div>
+
+<div id="survey-wrap">
+
+  <!-- ══════════════════════════════
+       INTRO
+  ══════════════════════════════ -->
+  <div id="screen-intro" class="screen active">
+    <div class="intro-card">
+      <h1>Indonesia Mining Consultancy Survey</h1>
+      <div class="intro-meta">
+        <span>~12 minutes</span>
+        <span>24 questions</span>
+        <span>Confidential</span>
+      </div>
+      <p>This survey is conducted by <strong>Thinker Media Group</strong> on behalf of a leading international mining consultancy. Your insights will inform research into the Indonesia mining services market.</p>
+      <p>We are interested in the perspectives of senior professionals across large miners, exploration and development groups, and local mining companies active in Indonesia.</p>
+      <p class="privacy-note">All responses are anonymous and confidential. Individual responses will not be attributed to you or your organisation. Data will be reported in aggregate only.</p>
+      <div class="btn-row" style="justify-content:flex-start; margin-top:28px;">
+        <button class="btn btn-primary" onclick="startSurvey()">Begin Survey →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       DISQUALIFY
+  ══════════════════════════════ -->
+  <div id="screen-disq" class="screen">
+    <div class="end-card disq">
+      <div class="end-icon"></div>
+      <h2>Thank you for your time</h2>
+      <p>Unfortunately, based on your responses, you do not meet the criteria to qualify for this survey. We appreciate you taking the time to participate and will reach out to you for future surveys that may be a better fit.</p>
+      <div class="end-brand">Thinker Media Group · thinkermediagroup.com</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       COMPLETE
+  ══════════════════════════════ -->
+  <div id="screen-complete" class="screen">
+    <div class="end-card complete">
+      <div class="end-icon"></div>
+      <h2>Thank you for completing this survey</h2>
+      <p>Your insights are invaluable and will directly shape our research on the Indonesia mining consultancy market. We appreciate your time and expertise.</p>
+      <p style="margin-top:14px;">For any queries, please contact us at <strong>sales@thinkermediagroup.com</strong></p>
+      <div class="end-brand">Thinker Media Group · thinkermediagroup.com</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       QUESTIONS
+  ══════════════════════════════ -->
+  <div id="screen-questions" class="screen">
+    <div id="q-container"></div>
+    <div class="btn-row" id="nav-btns">
+      <button class="btn btn-secondary" id="btn-back" onclick="goBack()">← Back</button>
+      <button class="btn btn-primary" id="btn-next" onclick="goNext()">Next →</button>
+    </div>
+  </div>
+
+</div>
+
+<div id="saving-toast">Saving response…</div>
+<div id="footer">Research conducted by Thinker Media Group</div>
+
+<script>
+// ══════════════════════════════════════════════════
+// CONFIGURATION
+// ══════════════════════════════════════════════════
+const APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+let respondentRef = '';
+let answers = {};
+let currentQ = 0;
+let questionSequence = [];
+
+// ══════════════════════════════════════════════════
+// QUESTION DEFINITIONS
+// ══════════════════════════════════════════════════
+const SECTIONS = {
+  DQ: 'Demographics & Qualifying',
+  AWARENESS: 'Brand Awareness',
+  MARKET: 'Market Understanding',
+  DECISION: 'Decision Making',
+  FUTURE: 'Forward-looking',
+  CAPITAL: 'Capital & Advisory'
+};
+
+// Consultancy list (shared across Q1, Q2, Q3, Q4, Q5)
+const CONSULTANCIES = [
+  'AECOM','AKA Geosains Consulting','AFRY','AMC Consultants (AFRY)',
+  'Aurecon','Ausenco','CSA Global (ERM)','DRA Global','ERM',
+  'GeoMine Indonesia','GHD','GroundProbe (Orica)','Ground Risk Management (GRM)',
+  'Hatch','Knight Piesold','Lycopodium','Mining One',
+  'NRM Consulting','Oretrend Adimitra Konsultan',
+  'PT Geotechnical Engineering Consultant (GEC)',
+  'PT Terra Nusa Prima','PT Tura Consulting Indonesia',
+  'RES-MINE','RPM Global (Caterpillar)','RSC','SLR','SMEC',
+  'Snowden Optiro (Datamine)','SRK','Tetra Tech Coffey','Wood',
+  'Worley','WSP (incl. Golder)'
+];
+
+const DISCIPLINES = [
+  'Mineral Exploration','Mining Project Evaluation',
+  'Environment and Social Responsibility','Geology and Resources',
+  'Mine Engineering','Water Management','Mining Geotechnics',
+  'Mine Closure','Mine Waste Management',
+  'Extractive Metallurgy and Mineral Processing',
+  'Civil and Structural Engineering','Corporate Advisory'
+];
+
+const CRITERIA = [
+  'Technical expertise','Trustworthiness','Innovation capability',
+  'Global reach','Local market knowledge','Cost competitiveness',
+  'Project reliability and delivery','Regulatory compliance expertise',
+  'Sustainability focus','Digital / technology capabilities',
+  'Responsiveness to client needs'
+];
+
+const SERVICE_AREAS = [
+  'Mineral Exploration','Mining Project Evaluation',
+  'Environment & Social Responsibility','Geology & Resource Estimation',
+  'Mine Engineering','Water Management','Geotechnics',
+  'Mine Closure','Mine Waste Management','Metallurgy & Processing',
+  'Civil & Structural Engineering','Corporate Advisory'
+];
+
+const DECISION_FUNCTIONS = [
+  'C-suite','Project / Project manager',
+  'Specific technical lead (exploration, ESG etc)','EPCM / Contractors',
+  'Senior management','Finance','Procurement','Board',
+  'Asset management / Maintenance','IT'
+];
+
+const WIN_FACTORS = [
+  'Strong local partnerships','Competitive pricing','International expertise',
+  'ESG leadership','Digital / technology capabilities',
+  'Faster delivery','Integrated services'
+];
+
+const INTL_FACTORS = [
+  'Foreign public listing on stock exchange',
+  'Project requirements demand international standards (JORC/VALMIN/GISTM etc)',
+  'Project / executive management based in Indonesia but project overseas and requires local presence',
+  'Experience with niche expertise not commonly available locally (deep underground, block caving, geometallurgy, closure, ESG, critical minerals etc)',
+  'Experience with high-risk or complex projects',
+  'Access to advanced technologies',
+  'Ability to provide a multidisciplinary service (geology through to ESG and closure)',
+  'Need to ensure better governance standards',
+  'Capacity for independent reviews of individual consultant\'s work'
+];
+
+const CHANNELS = [
+  'Company website','Trade press','Case studies',
+  'Reputation / Word of mouth','In-person meeting','Social media',
+  'AI / LLMs','Personal recommendations',
+  'Government and regulatory sources',
+  'Indonesian mining associations (IMA, PERHAPI etc)',
+  'Conferences / Events'
+];
+
+const DELAY_FACTORS = [
+  'Complexity of solutions offered by the consultant',
+  'Cultural nuances of business in Indonesia',
+  'Internal misalignment of objectives within your organisation',
+  'Lack of business case information from consultancies tendering',
+  'Budget approval process',
+  'Lack of technical expertise to evaluate consultancies',
+  'Lack of technical information provided by consultancies'
+];
+
+const LOCAL_RISKS = [
+  'Misalignment of incentives','Governance / transparency issues',
+  'Capability gaps','Reputation risk','Legal / contractual issues',
+  'Cultural misunderstanding'
+];
+
+const COMMODITIES = [
+  'Coal','Nickel','Copper','Gold','Bauxite','Tin','Rare earth elements'
+];
+
+const OP_RISKS = [
+  'Logistics / infrastructure','Workforce capability','Access to capital',
+  'Safety performance','Environmental constraints / reporting / compliance (GISTM etc)',
+  'Community relations','Equipment availability','Regulatory (inc. permitting)',
+  'RKAB quota system uncertainty',
+  'Political instability / volatility and resource nationalism',
+  'Financial complications due to new retention rules for export earnings'
+];
+
+const IMPROVEMENT_AREAS = [
+  'Automation','Digital mine planning','ESG monitoring',
+  'Water management','Tailings management','Exploration technologies'
+];
+
+const ADVISORY_TYPES = [
+  'Technical due diligence','Resource / reserve reporting',
+  'ESG compliance support','Financial modelling',
+  'Investor communications','None'
+];
+
+const SELECTION_CRITERIA = [
+  'Technical expertise','Trustworthiness','Innovation capability',
+  'Global reach','Local market knowledge','Integrated, multidisciplinary capabilities',
+  'Cost','Project reliability and delivery','Regulatory compliance expertise',
+  'Sustainability focus','Digital / technology capabilities',
+  'Responsiveness to client needs'
+];
+
+// ══════════════════════════════════════════════════
+// QUESTION BANK
+// ══════════════════════════════════════════════════
+const QUESTIONS = [
+
+  // ── DQ1 ──
+  {
+    id: 'dq1', section: 'DQ',
+    text: 'What best describes your organisation relative to Indonesia?',
+    type: 'single',
+    options: [
+      { val: 'operator_intl', label: 'Mining company invested in Indonesia (operator)' },
+      { val: 'exploration_intl', label: 'Exploration company invested in Indonesia' },
+      { val: 'dev_intl', label: 'Development company invested in Indonesia' },
+      { val: 'local', label: 'Local mining or development company (operator)' },
+      { val: 'govt', label: 'Government / regulator', disq: true },
+      { val: 'investor', label: 'Investor / financial institution', disq: true },
+      { val: 'contractor', label: 'Contractor / EPC', disq: true },
+      { val: 'other_dq', label: 'Other', disq: true }
+    ],
+    required: true
+  },
+
+  // ── DQ2 ──
+  {
+    id: 'dq2', section: 'DQ',
+    text: 'What is your role in securing supporting services for your activities?',
+    type: 'single',
+    options: [
+      { val: 'budget_holder', label: 'I hold the budget' },
+      { val: 'consulted', label: 'I am consulted on the services we use' },
+      { val: 'influencer', label: 'I am a key influencer on the final decision for services we use' },
+      { val: 'decision_maker', label: 'I am the lead decision maker' },
+      { val: 'stakeholder', label: 'I am a stakeholder', disq: true },
+      { val: 'no_role', label: 'I don\'t have an active role in choosing supporting services', disq: true },
+      { val: 'other_dq2', label: 'Other', disq: true }
+    ],
+    required: true
+  },
+
+  // ── Q1: Brand Awareness ──
+  {
+    id: 'q1', section: 'AWARENESS',
+    num: 1,
+    text: 'Which of the following mining consulting firms are you aware of?',
+    sub: 'Please scroll through the full list and select all that you recognise.',
+    type: 'multi',
+    options: CONSULTANCIES.map(c => ({ val: c.toLowerCase().replace(/[^a-z0-9]/g,'_'), label: c })),
+    other: true,
+    required: true,
+    minSelect: 1
+  },
+
+  // ── Q2: Discipline awareness (grid - filtered by Q1) ──
+  {
+    id: 'q2', section: 'AWARENESS',
+    num: 2,
+    text: 'For the consultancies you have heard of, which do you associate with the following disciplines?',
+    sub: 'Only the consultancies you selected in the previous question are shown.',
+    type: 'grid_multi',
+    rows: 'from_q1_consultancies', // populated at runtime from Q1 answers
+    cols: DISCIPLINES,
+    followup: {
+      id: 'q2_leader',
+      text: 'Which consultancy do you recognise as the LEADER in each discipline?',
+      type: 'grid_single',
+      rows: 'from_q1_consultancies',
+      cols: DISCIPLINES
+    },
+    required: false
+  },
+
+  // ── Q3: Brand rating (grid) ──
+  {
+    id: 'q3', section: 'AWARENESS',
+    num: 3,
+    text: 'For the consultancies you have heard of, please rate each against the following criteria.',
+    sub: 'Use a 1–5 scale where 1 = Poor and 5 = Excellent. Select only for consultancies you can meaningfully assess.',
+    type: 'grid_rating',
+    rows: 'from_q1_consultancies',
+    cols: CRITERIA,
+    scale: [1,2,3,4,5],
+    required: false
+  },
+
+  // ── Q4: Market leaders ──
+  {
+    id: 'q4', section: 'AWARENESS',
+    num: 4,
+    text: 'Which of the following consultancies would you regard as holding leading positions in the Indonesia market?',
+    sub: 'Select all that are relevant.',
+    type: 'multi',
+    options: 'from_q1_consultancies',
+    required: false,
+    followup: {
+      id: 'q4_top',
+      text: 'Which do you regard as the overall leader?',
+      type: 'single',
+      options: 'from_q4'
+    }
+  },
+
+  // ── Q5: Market structure A ──
+  {
+    id: 'q5a', section: 'MARKET',
+    num: '5a',
+    text: 'Which of the following best describes the competitive structure of the consultancy market in Indonesia?',
+    type: 'single',
+    options: [
+      { val: 'intl_dom', label: 'The market is dominated by international firms, with some local firms filling gaps' },
+      { val: 'split', label: 'The market is evenly split between international and local firms' },
+      { val: 'local_dom', label: 'The market is dominated by local firms, with some international firms filling gaps' },
+      { val: 'size_split', label: 'International consultancies cover major projects, with local firms covering smaller projects' }
+    ],
+    required: true
+  },
+
+  // ── Q5b: Market structure B ──
+  {
+    id: 'q5b', section: 'MARKET',
+    num: '5b',
+    text: 'Which of the following best describes how the market is covered by different types of firm?',
+    type: 'single',
+    options: [
+      { val: 'large_comp', label: 'The market is evenly and comprehensively covered by several large consultancies' },
+      { val: 'large_spec', label: 'Several large consultancies cover the market, with small firms and single-person specialists filling gaps' },
+      { val: 'mix_spec', label: 'A mix of large consultancies and smaller firms, with single-person specialists filling gaps' },
+      { val: 'full_mix', label: 'A mix of large consultancies, smaller firms, and single-person specialists (all material in representation)' },
+      { val: 'large_small', label: 'Large consultancies for major projects; small firms and specialists dominating the rest' },
+      { val: 'solo_dom', label: 'The market is dominated by single-person specialists' }
+    ],
+    required: true
+  },
+
+  // ── Q6: Market share ──
+  {
+    id: 'q6', section: 'MARKET',
+    num: 6,
+    text: 'What would you estimate is the market share for each of the following categories of consultant?',
+    sub: 'Estimates should sum to 100%.',
+    type: 'market_share',
+    categories: [
+      'Large international consultancies',
+      'Large local consultancies',
+      'Small consultancies (fewer than 5 people)',
+      'Single-person consultants'
+    ],
+    required: true
+  },
+
+  // ── Q7: Selection criteria ──
+  {
+    id: 'q7', section: 'DECISION',
+    num: 7,
+    text: 'What factors have a material influence when choosing a mining consultancy for a new project?',
+    sub: 'Select all that apply.',
+    type: 'multi',
+    options: SELECTION_CRITERIA.map(c => ({ val: c.toLowerCase().replace(/[^a-z0-9]/g,'_'), label: c })),
+    required: true, minSelect: 1,
+    followup: {
+      id: 'q7_top',
+      text: 'Which is the MOST important factor?',
+      type: 'single_from_selected',
+      sourceQ: 'q7'
+    }
+  },
+
+  // ── Q8: Decision functions ──
+  {
+    id: 'q8', section: 'DECISION',
+    num: 8,
+    text: 'Which functions are typically involved in the decision to engage a new consultant?',
+    sub: 'Select all that apply.',
+    type: 'multi',
+    options: DECISION_FUNCTIONS.map(c => ({ val: c.toLowerCase().replace(/[^a-z0-9]/g,'_'), label: c })),
+    required: true, minSelect: 1,
+    followup: {
+      id: 'q8_top',
+      text: 'Who has the most influence / final decision?',
+      type: 'single_from_selected',
+      sourceQ: 'q8'
+    }
+  },
+
+  // ── Q9: Decision timeline ──
+  {
+    id: 'q9', section: 'DECISION',
+    num: 9,
+    text: 'How long does it typically take to make a decision on engaging a mining consultancy for project work?',
+    type: 'single',
+    options: [
+      { val: 'lt1m', label: 'Less than 1 month' },
+      { val: '1_3m', label: '1–3 months' },
+      { val: '3_6m', label: '3–6 months' },
+      { val: '6_12m', label: '6–12 months' },
+      { val: '12_18m', label: '12–18 months' },
+      { val: 'gt18m', label: 'More than 18 months' }
+    ],
+    required: true
+  },
+
+  // ── Q10: Delay factors ──
+  {
+    id: 'q10', section: 'DECISION',
+    num: 10,
+    text: 'What typically delays decision making when engaging a consultancy?',
+    sub: 'Select all that apply.',
+    type: 'multi',
+    options: [
+      ...DELAY_FACTORS.map(c => ({ val: c.toLowerCase().replace(/[^a-z0-9]/g,'_'), label: c })),
+      { val: 'other', label: 'Other', other: true }
+    ],
+    required: false,
+    followup: {
+      id: 'q10_top',
+      text: 'Which causes the GREATEST delays?',
+      type: 'single_from_selected',
+      sourceQ: 'q10'
+    }
+  },
+
+  // ── Q11: Future services ──
+  {
+    id: 'q11', section: 'FUTURE',
+    num: 11,
+    text: 'Which services are you likely to use in the next three years?',
+    sub: 'Select all that apply.',
+    type: 'multi',
+    options: SERVICE_AREAS.map(c => ({ val: c.toLowerCase().replace(/[^a-z0-9]/g,'_'), label: c })),
+    required: true, minSelect: 1,
+    followup: {
+      id: 'q11_top',
+      text: 'For which service area are you likely to need the MOST support?',
+      type: 'single_from_selected',
+      sourceQ: 'q11'
+    }
+  },
+
+  // ── Q12: Differentiators ──
+  {
+    id: 'q12', section: 'FUTURE',
+    num: 12,
+    text: 'What would materially differentiate a new consultancy entering the Indonesia market?',
+    sub: 'Select all that apply.',
+    type: 'multi',
+    options: [
+      ...WIN_FACTORS.map(c => ({ val: c.toLowerCase().replace(/[^a-z0-9]/g,'_'), label: c })),
+      { val: 'other', label: 'Other', other: true }
+    ],
+    required: true, minSelect: 1,
+    followup: {
+      id: 'q12_top',
+      text: 'Which would be MOST influential in winning business?',
+      type: 'single_from_selected',
+      sourceQ: 'q12'
+    }
+  },
+
+  // ── Q13: International triggers ──
+  {
+    id: 'q13', section: 'FUTURE',
+    num: 13,
+    text: 'What project descriptors would increase the likelihood of using an international consultancy?',
+    sub: 'Select all that apply.',
+    type: 'multi',
+    options: INTL_FACTORS.map((c,i) => ({ val: 'intl_'+i, label: c })),
+    required: false,
+    followup: {
+      id: 'q13_top',
+      text: 'Which has the GREATEST influence?',
+      type: 'single_from_selected',
+      sourceQ: 'q13'
+    }
+  },
+
+  // ── Q14: Research channels ──
+  {
+    id: 'q14', section: 'MARKET',
+    num: 14,
+    text: 'What channels do you use to research the suitability of mining consultancies in Indonesia before deciding which to engage?',
+    sub: 'Select all that apply.',
+    type: 'multi',
+    options: CHANNELS.map(c => ({ val: c.toLowerCase().replace(/[^a-z0-9]/g,'_'), label: c })),
+    required: true, minSelect: 1,
+    followup: {
+      id: 'q14_top',
+      text: 'Which is the MOST influential in your final decision?',
+      type: 'single_from_selected',
+      sourceQ: 'q14'
+    }
+  },
+
+  // ── Q15: Engagement model ──
+  {
+    id: 'q15', section: 'MARKET',
+    num: 15,
+    text: 'What is your preferred engagement model for consultancy services?',
+    type: 'single',
+    options: [
+      { val: 'local_only', label: 'Local firm only' },
+      { val: 'intl_only', label: 'International firm only' },
+      { val: 'jv', label: 'Joint venture (local and international)' },
+      { val: 'no_pref', label: 'No preference' }
+    ],
+    required: true
+  },
+
+  // ── Q16: Local firm risks (CONDITIONAL: not local) ──
+  {
+    id: 'q16', section: 'MARKET',
+    num: 16,
+    text: 'What are the main risks when partnering with local firms?',
+    sub: 'Select all that apply.',
+    type: 'multi',
+    options: LOCAL_RISKS.map(c => ({ val: c.toLowerCase().replace(/[^a-z0-9]/g,'_'), label: c })),
+    condition: () => ['operator_intl','exploration_intl','dev_intl'].includes(answers['dq1']),
+    required: false,
+    followup: {
+      id: 'q16_top',
+      text: 'What is the GREATEST risk?',
+      type: 'single_from_selected',
+      sourceQ: 'q16'
+    }
+  },
+
+  // ── Q17: Pricing model ──
+  {
+    id: 'q17', section: 'MARKET',
+    num: 17,
+    text: 'What pricing model do you typically prefer?',
+    type: 'single',
+    options: [
+      { val: 'fixed', label: 'Fixed fee' },
+      { val: 'time', label: 'Time-based billing' },
+      { val: 'performance', label: 'Performance-based' },
+      { val: 'hybrid', label: 'Hybrid' },
+      { val: 'no_pref', label: 'No preference' }
+    ],
+    required: true
+  },
+
+  // ── Q18: Pricing perception ──
+  {
+    id: 'q18', section: 'MARKET',
+    num: 18,
+    text: 'How do you perceive current consultancy pricing in Indonesia compared to global benchmarks?',
+    type: 'single',
+    options: [
+      { val: 'much_more', label: 'Much more expensive than most other places we work' },
+      { val: 'more', label: 'More expensive than most other places we work' },
+      { val: 'in_line', label: 'Roughly in line with most other places we work' },
+      { val: 'slightly_less', label: 'Slightly cheaper than most other places we work' },
+      { val: 'much_less', label: 'Much cheaper than most other places we work' },
+      { val: 'no_comparison', label: 'We do not have operations or experience outside Indonesia' }
+    ],
+    required: true
+  },
+
+  // ── Q19: Market outlook ──
+  {
+    id: 'q19', section: 'FUTURE',
+    num: 19,
+    text: 'How do you expect mining activity in Indonesia to change over the next five years?',
+    type: 'single',
+    options: [
+      { val: 'sig_decline', label: 'Significant decline' },
+      { val: 'slight_decline', label: 'Slight decline' },
+      { val: 'no_change', label: 'No change' },
+      { val: 'mod_growth', label: 'Moderate growth' },
+      { val: 'strong_growth', label: 'Strong growth' }
+    ],
+    required: true
+  },
+
+  // ── Q20: Commodities ──
+  {
+    id: 'q20', section: 'FUTURE',
+    num: 20,
+    text: 'Which commodities present a growth opportunity in Indonesia?',
+    sub: 'Select all that apply.',
+    type: 'multi',
+    options: [
+      ...COMMODITIES.map(c => ({ val: c.toLowerCase().replace(/[^a-z0-9]/g,'_'), label: c })),
+      { val: 'other', label: 'Other', other: true }
+    ],
+    required: true, minSelect: 1,
+    followup: {
+      id: 'q20_top',
+      text: 'Which presents the GREATEST opportunity?',
+      type: 'single_from_selected',
+      sourceQ: 'q20'
+    }
+  },
+
+  // ── Q21: Operational risks ──
+  {
+    id: 'q21', section: 'FUTURE',
+    num: 21,
+    text: 'What are the relevant operational risks in mining projects in Indonesia?',
+    sub: 'Select all that apply.',
+    type: 'multi',
+    options: [
+      ...OP_RISKS.map(c => ({ val: c.toLowerCase().replace(/[^a-z0-9]/g,'_'), label: c })),
+      { val: 'other', label: 'Other', other: true }
+    ],
+    required: true, minSelect: 1,
+    followup: {
+      id: 'q21_top',
+      text: 'What represents the greatest risk?',
+      type: 'single_from_selected',
+      sourceQ: 'q21'
+    }
+  },
+
+  // ── Q22: Improvement areas ──
+  {
+    id: 'q22', section: 'FUTURE',
+    num: 22,
+    text: 'Which areas of mining in Indonesia need the greatest development and represent an opportunity for service providers?',
+    sub: 'Select all that apply.',
+    type: 'multi',
+    options: IMPROVEMENT_AREAS.map(c => ({ val: c.toLowerCase().replace(/[^a-z0-9]/g,'_'), label: c })),
+    required: true, minSelect: 1,
+    followup: {
+      id: 'q22_top',
+      text: 'Which presents the GREATEST opportunity?',
+      type: 'single_from_selected',
+      sourceQ: 'q22'
+    }
+  },
+
+  // ── Q23: Capital plans ──
+  {
+    id: 'q23', section: 'CAPITAL',
+    num: 23,
+    text: 'Are you planning to raise capital for mining projects in the next three years?',
+    type: 'single',
+    options: [
+      { val: 'yes_12m', label: 'Yes (within 12 months)' },
+      { val: 'yes_3y', label: 'Yes (1–3 years)' },
+      { val: 'no', label: 'No' },
+      { val: 'unsure', label: 'Unsure' }
+    ],
+    required: true
+  },
+
+  // ── Q24: Advisory needs (CONDITIONAL: yes on Q23) ──
+  {
+    id: 'q24', section: 'CAPITAL',
+    num: 24,
+    text: 'What type of advisory support would you need for capital raising or M&A?',
+    sub: 'Select all that apply.',
+    type: 'multi',
+    options: ADVISORY_TYPES.map(c => ({ val: c.toLowerCase().replace(/[^a-z0-9]/g,'_'), label: c })),
+    condition: () => ['yes_12m','yes_3y'].includes(answers['q23']),
+    required: false,
+    followup: {
+      id: 'q24_top',
+      text: 'Which type of advisory support is the MOST important?',
+      type: 'single_from_selected',
+      sourceQ: 'q24'
+    }
+  }
+];
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+function getRef() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('ref') || 'web_' + Date.now();
+}
+
+function startSurvey() {
+  respondentRef = getRef();
+  buildSequence();
+  showScreen('screen-questions');
+  renderQ(0);
+}
+
+function buildSequence() {
+  questionSequence = QUESTIONS.filter(q => !q.condition || q.condition());
+}
+
+function rebuildSequence() {
+  // Re-evaluate conditions (Q16, Q24)
+  questionSequence = QUESTIONS.filter(q => !q.condition || q.condition());
+}
+
+// ══════════════════════════════════════════════════
+// PROGRESS
+// ══════════════════════════════════════════════════
+function updateProgress() {
+  const total = questionSequence.length;
+  const pct = total > 0 ? Math.round((currentQ / total) * 100) : 0;
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+// ══════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function goNext() {
+  const q = questionSequence[currentQ];
+  if (!validateQ(q)) return;
+  saveAnswer(q);
+
+  // Check disqualification
+  if (isDisqualified(q)) {
+    showScreen('screen-disq');
+    return;
+  }
+
+  // Rebuild sequence in case condition-based questions changed
+  rebuildSequence();
+
+  if (currentQ >= questionSequence.length - 1) {
+    submitAll();
+  } else {
+    currentQ++;
+    renderQ(currentQ);
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function goBack() {
+  if (currentQ === 0) return;
+  currentQ--;
+  renderQ(currentQ);
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function isDisqualified(q) {
+  const val = answers[q.id];
+  if (!q.options || typeof q.options !== 'object' || !Array.isArray(q.options)) return false;
+  const selected = q.options.find(o => o.val === val && o.disq);
+  return !!selected;
+}
+
+// ══════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════
+function renderQ(idx) {
+  const q = questionSequence[idx];
+  const container = document.getElementById('q-container');
+  container.innerHTML = buildQHTML(q, idx);
+
+  // Back btn
+  document.getElementById('btn-back').style.display = idx === 0 ? 'none' : 'inline-flex';
+  // Next vs Submit
+  const isLast = idx >= questionSequence.length - 1;
+  document.getElementById('btn-next').textContent = isLast ? 'Submit Survey ✓' : 'Next →';
+
+  updateProgress();
+  attachListeners(q);
+  restoreAnswers(q);
+}
+
+function sectionLabel(sec) {
+  return SECTIONS[sec] || sec;
+}
+
+function buildQHTML(q, idx) {
+  let html = `<div class="q-card">`;
+  html += `<div class="q-section-label">${sectionLabel(q.section)}</div>`;
+  if (q.num) html += `<div class="q-number">Question ${q.num} of 24</div>`;
+  html += `<div class="q-text">${q.text}</div>`;
+  if (q.sub) html += `<div class="q-sub">${q.sub}</div>`;
+
+  html += buildInputHTML(q);
+
+  // Followup
+  if (q.followup) {
+    html += `<div class="followup-block" id="followup-${q.id}" style="display:none;">`;
+    html += `<div class="q-text">${q.followup.text}</div>`;
+    html += `<div class="q-instruction">Select one only</div>`;
+    html += `<div class="options-list" id="followup-opts-${q.id}"></div>`;
+    html += `</div>`;
+  }
+
+  html += `<div class="error-msg" id="err-${q.id}">Please make a selection to continue.</div>`;
+  html += `</div>`;
+  return html;
+}
+
+function buildInputHTML(q) {
+  if (q.type === 'single') return buildSingleHTML(q);
+  if (q.type === 'multi') return buildMultiHTML(q);
+  if (q.type === 'grid_multi' || q.type === 'grid_single') return buildGridHTML(q);
+  if (q.type === 'grid_rating') return buildRatingGridHTML(q);
+  if (q.type === 'market_share') return buildMarketShareHTML(q);
+  return '';
+}
+
+function buildSingleHTML(q) {
+  const opts = resolveOptions(q);
+  let html = `<div class="options-list" id="opts-${q.id}">`;
+  opts.forEach(o => {
+    html += `<div class="option-item radio${o.disq ? ' disqualify' : ''}" data-val="${o.val}" onclick="selectSingle('${q.id}', '${o.val}', this)">
+      <div class="option-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="option-label">${o.label}</div>
+    </div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function buildMultiHTML(q) {
+  const opts = resolveOptions(q);
+  let html = `<div class="q-instruction">Select all that apply</div>`;
+  html += `<div class="options-list" id="opts-${q.id}">`;
+  opts.forEach(o => {
+    html += `<div class="option-item${o.disq ? ' disqualify' : ''}" data-val="${o.val}" onclick="toggleMulti('${q.id}', '${o.val}', this, ${!!o.other})">
+      <div class="option-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="option-label">${o.label}</div>
+    </div>`;
+    if (o.other) {
+      html += `<div class="open-text-wrap" id="other-wrap-${q.id}" style="display:none;">
+        <input type="text" class="open-text-input" id="other-text-${q.id}" placeholder="Please specify…" style="min-height:44px; resize:none;" />
+      </div>`;
+    }
+  });
+  html += `</div>`;
+  return html;
+}
+
+function buildGridHTML(q) {
+  // Q2: per-consultancy accordion with discipline checkboxes + leader follow-up
+  const rows = resolveGridRows(q);
+  if (!rows || rows.length === 0) return '<p style="color:var(--text-light);font-size:13px;padding:8px 0;">Please complete Question 1 first.</p>';
+
+  let html = `<div class="acc-wrap" id="acc-${q.id}">`;
+  rows.forEach((firm, ri) => {
+    const safeId = 'acc_' + q.id + '_' + ri;
+    html += `<div class="acc-item" id="${safeId}">
+      <div class="acc-header" onclick="toggleAcc('${safeId}')">
+        <span class="acc-name">${firm}</span>
+        <span class="acc-summary" id="${safeId}-summary">Tap to answer</span>
+        <span class="acc-chevron">▼</span>
+      </div>
+      <div class="acc-body">
+        <div style="font-size:11px;font-weight:600;color:var(--mid-grey);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Which disciplines do you associate with ${firm}?</div>
+        <div class="disc-grid">`;
+    q.cols.forEach((disc, ci) => {
+      html += `<div class="disc-item" id="${safeId}-d${ci}" onclick="toggleDisc('${q.id}',${ri},${ci},'${safeId}')">
+        <div class="disc-box"></div>
+        <span class="disc-label">${disc}</span>
+      </div>`;
+    });
+    html += `</div>`;
+
+    // Leader follow-up lives inside same accordion card
+    if (q.followup && q.followup.type === 'grid_single') {
+      html += `<div class="acc-leader-label">Which is the LEADER in each selected discipline?</div>
+        <div class="leader-opts" id="${safeId}-leaders"></div>`;
+    }
+    html += `</div></div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function buildRatingGridHTML(q) {
+  // Q3: per-consultancy accordion with 1-5 rating buttons per criterion
+  const rows = resolveGridRows(q);
+  if (!rows || rows.length === 0) return '<p style="color:var(--text-light);font-size:13px;padding:8px 0;">Please complete Question 1 first.</p>';
+
+  let html = `<div class="acc-wrap" id="acc-${q.id}">`;
+  rows.forEach((firm, ri) => {
+    const safeId = 'accr_' + q.id + '_' + ri;
+    html += `<div class="acc-item" id="${safeId}">
+      <div class="acc-header" onclick="toggleAcc('${safeId}')">
+        <span class="acc-name">${firm}</span>
+        <span class="acc-summary" id="${safeId}-summary">Not yet rated</span>
+        <span class="acc-chevron">▼</span>
+      </div>
+      <div class="acc-body">
+        <div style="font-size:11px;color:var(--mid-grey);margin-bottom:12px;">Rate <strong>${firm}</strong> on each criterion — only rate where you have direct experience.</div>
+        <div class="crit-list">`;
+    q.cols.forEach((crit, ci) => {
+      html += `<div class="crit-row">
+        <span class="crit-name">${crit}</span>
+        <div class="star-btns">`;
+      q.scale.forEach(s => {
+        html += `<button class="star-btn" id="${safeId}-c${ci}-s${s}" onclick="setRating('${q.id}',${ri},${ci},${s},'${safeId}')">${s}</button>`;
+      });
+      html += `</div></div>`;
+    });
+    html += `</div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;">
+          <span style="font-size:10px;color:var(--mid-grey);">1 = Poor</span>
+          <span style="font-size:10px;color:var(--mid-grey);">5 = Excellent</span>
+        </div>
+      </div></div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function buildMarketShareHTML(q) {
+  let html = `<div class="market-share-wrap" id="ms-wrap-${q.id}">`;
+  q.categories.forEach((cat, i) => {
+    html += `<div class="ms-row">
+      <div class="ms-label">${cat} <span id="ms-val-${q.id}-${i}">0%</span></div>
+      <div class="ms-input">
+        <input type="range" class="ms-range" min="0" max="100" value="0" step="5"
+          id="ms-range-${q.id}-${i}" oninput="updateMarketShare('${q.id}', ${i}, ${q.categories.length})">
+        <input type="number" class="ms-number" min="0" max="100" value="0"
+          id="ms-num-${q.id}-${i}" oninput="syncRange('${q.id}', ${i}, ${q.categories.length})">
+      </div>
+    </div>`;
+  });
+  html += `<div class="ms-total" id="ms-total-${q.id}">Total: 0 / 100</div>`;
+  html += `</div>`;
+  return html;
+}
+
+// ══════════════════════════════════════════════════
+// OPTION RESOLVERS
+// ══════════════════════════════════════════════════
+function resolveOptions(q) {
+  if (Array.isArray(q.options)) return q.options;
+  if (q.options === 'from_q1_consultancies') return getQ1Selected().map(c => ({ val: c.toLowerCase().replace(/[^a-z0-9]/g,'_'), label: c }));
+  if (q.options === 'from_q4') return (answers['q4'] || []).map(v => ({ val: v, label: v }));
+  return [];
+}
+
+function resolveGridRows(q) {
+  if (q.rows === 'from_q1_consultancies') return getQ1Selected();
+  return q.rows || [];
+}
+
+function getQ1Selected() {
+  const sel = answers['q1'];
+  if (!sel || !Array.isArray(sel)) return [];
+  const allOpts = QUESTIONS.find(q => q.id === 'q1').options;
+  return sel.map(v => {
+    const opt = allOpts.find(o => o.val === v);
+    return opt ? opt.label : v;
+  });
+}
+
+// ══════════════════════════════════════════════════
+// INTERACTION HANDLERS
+// ══════════════════════════════════════════════════
+function selectSingle(qId, val, el) {
+  document.querySelectorAll(`#opts-${qId} .option-item`).forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  answers[qId] = val;
+  clearErr(qId);
+}
+
+function toggleMulti(qId, val, el, isOther) {
+  if (!answers[qId]) answers[qId] = [];
+  const idx = answers[qId].indexOf(val);
+  if (idx > -1) {
+    answers[qId].splice(idx, 1);
+    el.classList.remove('selected');
+  } else {
+    answers[qId].push(val);
+    el.classList.add('selected');
+  }
+  if (isOther) {
+    const wrap = document.getElementById(`other-wrap-${qId}`);
+    if (wrap) wrap.style.display = answers[qId].includes(val) ? 'block' : 'none';
+  }
+  clearErr(qId);
+  updateFollowup(qId);
+}
+
+function updateFollowup(qId) {
+  const q = questionSequence.find(q => q.id === qId);
+  if (!q || !q.followup) return;
+  const fu = q.followup;
+  if (fu.type !== 'single_from_selected') return;
+
+  const fuBlock = document.getElementById(`followup-${qId}`);
+  const fuOpts = document.getElementById(`followup-opts-${qId}`);
+  if (!fuBlock || !fuOpts) return;
+
+  const selected = answers[qId] || [];
+  if (selected.length === 0) {
+    fuBlock.style.display = 'none';
+    return;
+  }
+  fuBlock.style.display = 'block';
+
+  // Build options from selected values
+  const mainQ = questionSequence.find(q => q.id === fu.sourceQ);
+  const mainOpts = resolveOptions(mainQ);
+  const filteredOpts = mainOpts.filter(o => selected.includes(o.val) && o.val !== 'other');
+
+  fuOpts.innerHTML = filteredOpts.map(o =>
+    `<div class="option-item radio" data-val="${o.val}" onclick="selectFollowup('${qId}', '${fu.id}', '${o.val}', this)">
+      <div class="option-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="option-label">${o.label}</div>
+    </div>`
+  ).join('');
+
+  // Restore any previous followup answer
+  const prevVal = answers[fu.id];
+  if (prevVal) {
+    const prevEl = fuOpts.querySelector(`[data-val="${prevVal}"]`);
+    if (prevEl) prevEl.classList.add('selected');
+  }
+}
+
+function selectFollowup(mainQId, fuId, val, el) {
+  const fuOpts = document.getElementById(`followup-opts-${mainQId}`);
+  fuOpts.querySelectorAll('.option-item').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  answers[fuId] = val;
+}
+
+function toggleAcc(safeId) {
+  const el = document.getElementById(safeId);
+  if (!el) return;
+  el.classList.toggle('open');
+}
+
+function toggleDisc(qId, ri, ci, safeId) {
+  if (!answers[qId]) answers[qId] = {};
+  const key = `${ri}_${ci}`;
+  const el = document.getElementById(`${safeId}-d${ci}`);
+  if (!el) return;
+
+  if (answers[qId][key]) {
+    delete answers[qId][key];
+    el.classList.remove('checked');
+  } else {
+    answers[qId][key] = true;
+    el.classList.add('checked');
+  }
+  updateAccSummary(qId, ri, safeId);
+
+  // Rebuild leader pills if followup exists
+  const q = questionSequence.find(q => q.id === qId);
+  if (q && q.followup && q.followup.type === 'grid_single') {
+    rebuildLeaderPills(qId, ri, safeId, q);
+  }
+}
+
+function updateAccSummary(qId, ri, safeId) {
+  const all = answers[qId] || {};
+  const count = Object.keys(all).filter(k => k.startsWith(ri + '_')).length;
+  const sumEl = document.getElementById(`${safeId}-summary`);
+  const accEl = document.getElementById(safeId);
+  if (!sumEl) return;
+  if (count > 0) {
+    sumEl.textContent = count + ' selected';
+    accEl.classList.add('has-answer');
+  } else {
+    sumEl.textContent = 'Tap to answer';
+    accEl.classList.remove('has-answer');
+  }
+}
+
+function rebuildLeaderPills(qId, ri, safeId, q) {
+  const leaderId = q.followup.id;
+  const container = document.getElementById(`${safeId}-leaders`);
+  if (!container) return;
+
+  // get selected disciplines for this row
+  const all = answers[qId] || {};
+  const selectedCols = Object.keys(all)
+    .filter(k => k.startsWith(ri + '_'))
+    .map(k => parseInt(k.split('_')[1]));
+
+  if (selectedCols.length === 0) {
+    container.innerHTML = '<span style="font-size:12px;color:var(--mid-grey);">Select disciplines above to choose a leader.</span>';
+    return;
+  }
+
+  const currentLeader = (answers[leaderId] || {})[ri];
+  container.innerHTML = selectedCols.map(ci => {
+    const disc = q.cols[ci];
+    const isSelected = currentLeader === ci;
+    return `<span class="leader-pill${isSelected ? ' selected' : ''}" onclick="selectLeader('${leaderId}',${ri},${ci},'${safeId}',this)">${disc}</span>`;
+  }).join('');
+}
+
+function selectLeader(leaderId, ri, ci, safeId, el) {
+  if (!answers[leaderId]) answers[leaderId] = {};
+  answers[leaderId][ri] = ci;
+  // Update pill UI
+  const container = el.parentElement;
+  container.querySelectorAll('.leader-pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function setRating(qId, ri, ci, score, safeId) {
+  if (!answers[qId]) answers[qId] = {};
+  answers[qId][`${ri}_${ci}`] = score;
+
+  // Update button UI - deselect all in this row/col, select clicked
+  const q = questionSequence.find(q => q.id === qId);
+  if (!q) return;
+  q.scale.forEach(s => {
+    const btn = document.getElementById(`${safeId}-c${ci}-s${s}`);
+    if (btn) btn.classList.toggle('active', s === score);
+  });
+
+  // Update summary
+  const all = answers[qId] || {};
+  const ratedCount = Object.keys(all).filter(k => k.startsWith(ri + '_')).length;
+  const sumEl = document.getElementById(`${safeId}-summary`);
+  const accEl = document.getElementById(safeId);
+  if (sumEl) {
+    sumEl.textContent = ratedCount + ' of ' + q.cols.length + ' rated';
+    if (ratedCount > 0) accEl.classList.add('has-answer');
+  }
+}
+
+function saveGridAnswer(qId) {
+  // Legacy stub kept for safety — accordion handlers write directly to answers
+}
+
+function updateMarketShare(qId, idx, total) {
+  const rangeEl = document.getElementById(`ms-range-${qId}-${idx}`);
+  const numEl = document.getElementById(`ms-num-${qId}-${idx}`);
+  numEl.value = rangeEl.value;
+  document.getElementById(`ms-val-${qId}-${idx}`).textContent = rangeEl.value + '%';
+  saveMarketShare(qId, total);
+}
+
+function syncRange(qId, idx, total) {
+  const numEl = document.getElementById(`ms-num-${qId}-${idx}`);
+  const rangeEl = document.getElementById(`ms-range-${qId}-${idx}`);
+  let val = parseInt(numEl.value) || 0;
+  val = Math.min(100, Math.max(0, val));
+  numEl.value = val;
+  rangeEl.value = val;
+  document.getElementById(`ms-val-${qId}-${idx}`).textContent = val + '%';
+  saveMarketShare(qId, total);
+}
+
+function saveMarketShare(qId, total) {
+  const q = QUESTIONS.find(q => q.id === qId);
+  let sum = 0;
+  const vals = {};
+  q.categories.forEach((cat, i) => {
+    const v = parseInt(document.getElementById(`ms-num-${qId}-${i}`).value) || 0;
+    sum += v;
+    vals[cat] = v;
+  });
+  answers[qId] = vals;
+  const totalEl = document.getElementById(`ms-total-${qId}`);
+  totalEl.textContent = `Total: ${sum} / 100`;
+  totalEl.className = 'ms-total ' + (sum === 100 ? 'ok' : 'err');
+}
+
+// ══════════════════════════════════════════════════
+// SAVE / RESTORE ANSWERS
+// ══════════════════════════════════════════════════
+function saveAnswer(q) {
+  // Most answers are saved on interaction; this ensures other-text is captured
+  if (q.type === 'multi') {
+    const otherEl = document.getElementById(`other-text-${q.id}`);
+    if (otherEl && otherEl.value.trim()) {
+      answers[q.id + '_other'] = otherEl.value.trim();
+    }
+  }
+}
+
+function restoreAnswers(q) {
+  const val = answers[q.id];
+  if (!val) return;
+
+  if (q.type === 'single') {
+    const el = document.querySelector(`#opts-${q.id} [data-val="${val}"]`);
+    if (el) el.classList.add('selected');
+  }
+  if (q.type === 'multi' && Array.isArray(val)) {
+    val.forEach(v => {
+      const el = document.querySelector(`#opts-${q.id} [data-val="${v}"]`);
+      if (el) {
+        el.classList.add('selected');
+        // check if other
+        const opt = resolveOptions(q).find(o => o.val === v && o.other);
+        if (opt) {
+          const wrap = document.getElementById(`other-wrap-${q.id}`);
+          if (wrap) wrap.style.display = 'block';
+        }
+      }
+    });
+    updateFollowup(q.id);
+  }
+  if (q.type === 'market_share' && typeof val === 'object') {
+    q.categories.forEach((cat, i) => {
+      const v = val[cat] || 0;
+      const num = document.getElementById(`ms-num-${q.id}-${i}`);
+      const range = document.getElementById(`ms-range-${q.id}-${i}`);
+      const lbl = document.getElementById(`ms-val-${q.id}-${i}`);
+      if (num) { num.value = v; range.value = v; lbl.textContent = v + '%'; }
+    });
+    saveMarketShare(q.id, q.categories.length);
+  }
+}
+
+function attachListeners(q) {
+  // For grid questions, just delegate via inline handlers
+}
+
+// ══════════════════════════════════════════════════
+// VALIDATION
+// ══════════════════════════════════════════════════
+function validateQ(q) {
+  if (!q.required) return true;
+
+  if (q.type === 'single') {
+    if (!answers[q.id]) { showErr(q.id, 'Please select an option to continue.'); return false; }
+  }
+  if (q.type === 'multi') {
+    if (!answers[q.id] || answers[q.id].length < (q.minSelect || 1)) {
+      showErr(q.id, 'Please select at least one option.'); return false;
+    }
+  }
+  if (q.type === 'market_share') {
+    const vals = answers[q.id];
+    if (!vals) { showErr(q.id, 'Please enter estimates that sum to 100%.'); return false; }
+    const sum = Object.values(vals).reduce((a, b) => a + b, 0);
+    if (sum !== 100) { showErr(q.id, `Your estimates total ${sum}%. Please adjust so they sum to 100%.`); return false; }
+  }
+  return true;
+}
+
+function showErr(qId, msg) {
+  const el = document.getElementById(`err-${qId}`);
+  if (el) { el.textContent = msg; el.classList.add('show'); }
+}
+function clearErr(qId) {
+  const el = document.getElementById(`err-${qId}`);
+  if (el) el.classList.remove('show');
+}
+
+// ══════════════════════════════════════════════════
+// SUBMIT
+// ══════════════════════════════════════════════════
+async function submitAll() {
+  // Show saving toast
+  const toast = document.getElementById('saving-toast');
+  toast.classList.add('show');
+
+  const payload = {
+    ref: respondentRef,
+    timestamp: new Date().toISOString(),
+    ...flattenAnswers()
+  };
+
+  try {
+    if (APPS_SCRIPT_URL !== 'YOUR_APPS_SCRIPT_URL_HERE') {
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    }
+  } catch(e) {
+    console.warn('Submit error', e);
+  }
+
+  toast.classList.remove('show');
+  showScreen('screen-complete');
+  document.getElementById('progress-bar').style.width = '100%';
+}
+
+function flattenAnswers() {
+  const flat = {};
+  Object.keys(answers).forEach(k => {
+    const v = answers[k];
+    if (Array.isArray(v)) {
+      flat[k] = v.join('|');
+    } else if (typeof v === 'object' && v !== null) {
+      Object.keys(v).forEach(subK => {
+        flat[`${k}__${subK.replace(/[^a-zA-Z0-9]/g,'_')}`] = v[subK];
+      });
+    } else {
+      flat[k] = v;
+    }
+  });
+  return flat;
+}
+</script>
+</body>
+</html>
