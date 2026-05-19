@@ -440,8 +440,8 @@
     font-size: 11px; color: var(--mid-grey);
     letter-spacing: 0.08em; text-transform: uppercase;
   }
-  .end-card.disq .end-icon::after { content: '🙏'; }
-  .end-card.complete .end-icon::after { content: '✅'; }
+  .end-card.disq .end-icon { display: none; }
+  .end-card.complete .end-icon { display: none; }
 
   /* ─── BUTTONS ─── */
   .btn-row {
@@ -497,8 +497,8 @@
 <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
 
 <div id="header">
-  <div class="logo-badge">SRK Consulting</div>
-  <div class="tagline">Indonesia Market Research · Conducted by Thinker Media Group</div>
+  <div class="logo-badge">Thinker Media Group</div>
+  <div class="tagline">Indonesia Mining Market Research</div>
 </div>
 
 <div id="survey-wrap">
@@ -1267,6 +1267,8 @@ function renderQ(idx) {
   // Back btn
   document.getElementById('btn-back').style.display = idx === 0 ? 'none' : 'inline-flex';
   // Next vs Submit
+  // Rebuild sequence first so isLast reflects current conditional state
+  rebuildSequence();
   const isLast = idx >= questionSequence.length - 1;
   document.getElementById('btn-next').textContent = isLast ? 'Submit Survey ✓' : 'Next →';
 
