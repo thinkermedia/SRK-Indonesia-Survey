@@ -836,7 +836,7 @@ const QUESTIONS = [
       rows: 'from_q1_consultancies',
       cols: DISCIPLINES
     },
-    required: false
+    required: true
   },
 
   // ── Q3: Brand rating (grid) ──
@@ -849,7 +849,7 @@ const QUESTIONS = [
     rows: 'from_q1_consultancies',
     cols: CRITERIA,
     scale: [1,2,3,4,5],
-    required: false
+    required: true
   },
 
   // ── Q4: Market leaders ──
@@ -860,7 +860,8 @@ const QUESTIONS = [
     sub: 'Select all that are relevant.',
     type: 'multi',
     options: 'from_q1_consultancies',
-    required: false,
+    required: true,
+    minSelect: 1,
     followup: {
       id: 'q4_top',
       text: 'Which do you regard as the overall leader?',
@@ -979,7 +980,7 @@ const QUESTIONS = [
       ...DELAY_FACTORS.map(c => ({ val: c.toLowerCase().replace(/[^a-z0-9]/g,'_'), label: c })),
       { val: 'other', label: 'Other', other: true }
     ],
-    required: false,
+    required: true, minSelect: 1,
     followup: {
       id: 'q10_top',
       text: 'Which causes the GREATEST delays?',
@@ -1033,7 +1034,7 @@ const QUESTIONS = [
     sub: 'Select all that apply.',
     type: 'multi',
     options: INTL_FACTORS.map((c,i) => ({ val: 'intl_'+i, label: c })),
-    required: false,
+    required: true, minSelect: 1,
     followup: {
       id: 'q13_top',
       text: 'Which has the GREATEST influence?',
@@ -1083,7 +1084,7 @@ const QUESTIONS = [
     type: 'multi',
     options: LOCAL_RISKS.map(c => ({ val: c.toLowerCase().replace(/[^a-z0-9]/g,'_'), label: c })),
     condition: () => ['operator_intl','exploration_intl','dev_intl'].includes(answers['dq1']),
-    required: false,
+    required: true, minSelect: 1,
     followup: {
       id: 'q16_top',
       text: 'What is the GREATEST risk?',
@@ -1222,7 +1223,7 @@ const QUESTIONS = [
     type: 'multi',
     options: ADVISORY_TYPES.map(c => ({ val: c.toLowerCase().replace(/[^a-z0-9]/g,'_'), label: c })),
     condition: () => ['yes_12m','yes_3y'].includes(answers['q23']),
-    required: false,
+    required: true, minSelect: 1,
     followup: {
       id: 'q24_top',
       text: 'Which type of advisory support is the MOST important?',
@@ -1576,36 +1577,68 @@ function updateFollowup(qId) {
   const q = questionSequence.find(q => q.id === qId);
   if (!q || !q.followup) return;
   const fu = q.followup;
-  if (fu.type !== 'single_from_selected') return;
 
   const fuBlock = document.getElementById(`followup-${qId}`);
   const fuOpts = document.getElementById(`followup-opts-${qId}`);
   if (!fuBlock || !fuOpts) return;
 
-  const selected = answers[qId] || [];
-  if (selected.length === 0) {
-    fuBlock.style.display = 'none';
+  // ── single_from_selected: "most important" followup under multi questions ──
+  if (fu.type === 'single_from_selected') {
+    const selected = answers[qId] || [];
+    if (selected.length === 0) {
+      fuBlock.style.display = 'none';
+      return;
+    }
+    fuBlock.style.display = 'block';
+
+    const mainQ = questionSequence.find(q => q.id === fu.sourceQ);
+    const mainOpts = resolveOptions(mainQ);
+    const filteredOpts = mainOpts.filter(o => selected.includes(o.val) && o.val !== 'other');
+
+    fuOpts.innerHTML = filteredOpts.map(o =>
+      `<div class="option-item radio" data-val="${o.val}" onclick="selectFollowup('${qId}', '${fu.id}', '${o.val}', this)">
+        <div class="option-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="option-label">${o.label}</div>
+      </div>`
+    ).join('');
+
+    const prevVal = answers[fu.id];
+    if (prevVal) {
+      const prevEl = fuOpts.querySelector(`[data-val="${prevVal}"]`);
+      if (prevEl) prevEl.classList.add('selected');
+    }
     return;
   }
-  fuBlock.style.display = 'block';
 
-  // Build options from selected values
-  const mainQ = questionSequence.find(q => q.id === fu.sourceQ);
-  const mainOpts = resolveOptions(mainQ);
-  const filteredOpts = mainOpts.filter(o => selected.includes(o.val) && o.val !== 'other');
+  // ── plain single followup (Q4: overall leader from selected market leaders) ──
+  if (fu.type === 'single') {
+    const selected = answers[qId] || [];
+    if (!Array.isArray(selected) || selected.length === 0) {
+      fuBlock.style.display = 'none';
+      return;
+    }
+    fuBlock.style.display = 'block';
 
-  fuOpts.innerHTML = filteredOpts.map(o =>
-    `<div class="option-item radio" data-val="${o.val}" onclick="selectFollowup('${qId}', '${fu.id}', '${o.val}', this)">
-      <div class="option-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="option-label">${o.label}</div>
-    </div>`
-  ).join('');
+    // Options come from the selections made in the main question
+    const filteredOpts = selected.map(v => {
+      const mainQ = questionSequence.find(q => q.id === qId);
+      const mainOpts = resolveOptions(mainQ);
+      return mainOpts.find(o => o.val === v);
+    }).filter(Boolean);
 
-  // Restore any previous followup answer
-  const prevVal = answers[fu.id];
-  if (prevVal) {
-    const prevEl = fuOpts.querySelector(`[data-val="${prevVal}"]`);
-    if (prevEl) prevEl.classList.add('selected');
+    fuOpts.innerHTML = filteredOpts.map(o =>
+      `<div class="option-item radio" data-val="${o.val}" onclick="selectFollowup('${qId}', '${fu.id}', '${o.val}', this)">
+        <div class="option-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="option-label">${o.label}</div>
+      </div>`
+    ).join('');
+
+    const prevVal = answers[fu.id];
+    if (prevVal) {
+      const prevEl = fuOpts.querySelector(`[data-val="${prevVal}"]`);
+      if (prevEl) prevEl.classList.add('selected');
+    }
+    return;
   }
 }
 
@@ -1841,47 +1874,161 @@ function unlockNext() {
 // VALIDATION
 // ══════════════════════════════════════════════════
 function validateQ(q) {
-  if (!q.required) {
+  if (!q.required) return true;
+
+  // ── single: must select one option ──
+  if (q.type === 'single') {
+    if (!answers[q.id]) {
+      showErr(q.id, 'Please select an option to continue.');
+      return false;
+    }
+    return true;
+  }
+
+  // ── multi: must select at least one + followup must be answered ──
+  if (q.type === 'multi') {
+    if (!answers[q.id] || answers[q.id].length < (q.minSelect || 1)) {
+      showErr(q.id, 'Please select at least one option.');
+      return false;
+    }
     return validateFollowup(q);
   }
 
-  if (q.type === 'single') {
-    if (!answers[q.id]) { showErr(q.id, 'Please select an option to continue.'); return false; }
-  }
-  if (q.type === 'multi') {
-    if (!answers[q.id] || answers[q.id].length < (q.minSelect || 1)) {
-      showErr(q.id, 'Please select at least one option.'); return false;
-    }
-  }
+  // ── market_share: must sum to exactly 100 ──
   if (q.type === 'market_share') {
     const vals = answers[q.id];
-    if (!vals) { showErr(q.id, 'Please enter estimates that sum to 100%.'); return false; }
+    if (!vals) {
+      showErr(q.id, 'Please enter estimates that sum to 100%.');
+      return false;
+    }
     const sum = Object.values(vals).reduce((a, b) => a + b, 0);
-    if (sum !== 100) { showErr(q.id, `Your estimates total ${sum}%. Please adjust so they sum to 100%.`); return false; }
+    if (sum !== 100) {
+      showErr(q.id, `Your estimates total ${sum}%. Please adjust so they sum to 100%.`);
+      return false;
+    }
+    return true;
   }
 
-  return validateFollowup(q);
+  // ── grid_multi (Q2): every firm must have at least one discipline selected,
+  //    AND every firm that has disciplines must have a leader chosen ──
+  if (q.type === 'grid_multi') {
+    const rows = resolveGridRows(q);
+    if (!rows || rows.length === 0) return true;
+    const gridAnswers = answers[q.id] || {};
+
+    // Every firm must have at least one discipline ticked
+    for (let ri = 0; ri < rows.length; ri++) {
+      const hasDisc = Object.keys(gridAnswers).some(k => k.startsWith(ri + '_'));
+      if (!hasDisc) {
+        const firmName = rows[ri];
+        showErr(q.id, `Please select at least one discipline for ${firmName}.`);
+        const accEl = document.getElementById(`acc_${q.id}_${ri}`);
+        if (accEl) { accEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); accEl.classList.add('open'); }
+        return false;
+      }
+    }
+
+    // Every firm that has disciplines must also have a leader
+    if (q.followup && q.followup.type === 'grid_single') {
+      return validateGridLeader(q);
+    }
+    return true;
+  }
+
+  // ── grid_rating (Q3): every firm must have ALL criteria rated ──
+  if (q.type === 'grid_rating') {
+    const rows = resolveGridRows(q);
+    if (!rows || rows.length === 0) return true;
+    const gridAnswers = answers[q.id] || {};
+    const numCols = q.cols.length;
+
+    for (let ri = 0; ri < rows.length; ri++) {
+      for (let ci = 0; ci < numCols; ci++) {
+        if (gridAnswers[`${ri}_${ci}`] === undefined) {
+          const firmName = rows[ri];
+          const critName = q.cols[ci];
+          showErr(q.id, `Please rate ${firmName} on "${critName}" before continuing.`);
+          const accEl = document.getElementById(`accr_${q.id}_${ri}`);
+          if (accEl) { accEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); accEl.classList.add('open'); }
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  return true;
 }
 
 function validateFollowup(q) {
   if (!q.followup) return true;
   const fu = q.followup;
-  if (fu.type !== 'single_from_selected') return true;
 
-  const fuBlock = document.getElementById(`followup-${q.id}`);
-  const isVisible = fuBlock && fuBlock.style.display !== 'none';
-  if (!isVisible) return true;
+  // single_from_selected: the "which is MOST important" followup under multi questions
+  if (fu.type === 'single_from_selected') {
+    const selected = answers[q.id] || [];
+    if (selected.length === 0) return true; // nothing selected in main, followup hidden
 
-  const mainOpts = resolveOptions(q);
-  const mainSelected = answers[q.id];
-  const mainArr = Array.isArray(mainSelected) ? mainSelected : (mainSelected ? [mainSelected] : []);
-  const selectableOpts = mainOpts.filter(o => mainArr.includes(o.val) && o.val !== 'other');
-  if (selectableOpts.length === 0) return true;
+    const mainOpts = resolveOptions(q);
+    const selectableOpts = mainOpts.filter(o => selected.includes(o.val) && o.val !== 'other');
+    if (selectableOpts.length === 0) return true;
 
-  if (!answers[fu.id]) {
-    showErr(q.id, 'Please also select the most important option before continuing.');
-    if (fuBlock) fuBlock.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    return false;
+    if (!answers[fu.id]) {
+      const fuBlock = document.getElementById(`followup-${q.id}`);
+      showErr(q.id, 'Please also select the most important option before continuing.');
+      if (fuBlock) fuBlock.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      return false;
+    }
+  }
+
+  // plain single followup (e.g. Q4 overall leader)
+  if (fu.type === 'single') {
+    const mainSelected = answers[q.id];
+    const hasMain = Array.isArray(mainSelected) ? mainSelected.length > 0 : !!mainSelected;
+    if (!hasMain) return true; // main not answered, followup not shown
+
+    if (!answers[fu.id]) {
+      const fuBlock = document.getElementById(`followup-${q.id}`);
+      showErr(q.id, 'Please also select the most important option before continuing.');
+      if (fuBlock) fuBlock.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function validateGridLeader(q) {
+  // For Q2: every firm that has at least one discipline selected must also
+  // have a leader pill selected for that discipline.
+  // The leader answer is stored in answers[q.followup.id] as { rowIndex: colIndex }
+  const fu = q.followup;
+  const gridAnswers = answers[q.id] || {};
+  const leaderAnswers = answers[fu.id] || {};
+  const rows = resolveGridRows(q);
+
+  // Collect which row indices have any discipline checked
+  const rowsWithSelections = new Set();
+  Object.keys(gridAnswers).forEach(key => {
+    const ri = parseInt(key.split('_')[0]);
+    if (!isNaN(ri)) rowsWithSelections.add(ri);
+  });
+
+  if (rowsWithSelections.size === 0) return true;
+
+  // Check every row that has selections also has a leader
+  for (const ri of rowsWithSelections) {
+    if (leaderAnswers[ri] === undefined) {
+      const firmName = rows[ri] || ('firm ' + ri);
+      showErr(q.id, `Please select a leader discipline for ${firmName} before continuing.`);
+      // Try to scroll the relevant accordion into view
+      const accEl = document.getElementById(`acc_${q.id}_${ri}`);
+      if (accEl) {
+        accEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        accEl.classList.add('open');
+      }
+      return false;
+    }
   }
   return true;
 }
