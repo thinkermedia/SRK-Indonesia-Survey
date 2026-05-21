@@ -1841,7 +1841,9 @@ function unlockNext() {
 // VALIDATION
 // ══════════════════════════════════════════════════
 function validateQ(q) {
-  if (!q.required) return true;
+  if (!q.required) {
+    return validateFollowup(q);
+  }
 
   if (q.type === 'single') {
     if (!answers[q.id]) { showErr(q.id, 'Please select an option to continue.'); return false; }
@@ -1856,6 +1858,30 @@ function validateQ(q) {
     if (!vals) { showErr(q.id, 'Please enter estimates that sum to 100%.'); return false; }
     const sum = Object.values(vals).reduce((a, b) => a + b, 0);
     if (sum !== 100) { showErr(q.id, `Your estimates total ${sum}%. Please adjust so they sum to 100%.`); return false; }
+  }
+
+  return validateFollowup(q);
+}
+
+function validateFollowup(q) {
+  if (!q.followup) return true;
+  const fu = q.followup;
+  if (fu.type !== 'single_from_selected') return true;
+
+  const fuBlock = document.getElementById(`followup-${q.id}`);
+  const isVisible = fuBlock && fuBlock.style.display !== 'none';
+  if (!isVisible) return true;
+
+  const mainOpts = resolveOptions(q);
+  const mainSelected = answers[q.id];
+  const mainArr = Array.isArray(mainSelected) ? mainSelected : (mainSelected ? [mainSelected] : []);
+  const selectableOpts = mainOpts.filter(o => mainArr.includes(o.val) && o.val !== 'other');
+  if (selectableOpts.length === 0) return true;
+
+  if (!answers[fu.id]) {
+    showErr(q.id, 'Please also select the most important option before continuing.');
+    if (fuBlock) fuBlock.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    return false;
   }
   return true;
 }
