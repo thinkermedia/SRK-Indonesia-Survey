@@ -407,6 +407,49 @@
   }
   .rating-labels span { font-size: 11px; color: var(--mid-grey); }
 
+  .q-scroll-warning {
+    font-size: 14px; font-weight: 600;
+    color: #7A5500;
+    background: rgba(201,153,44,0.12);
+    border: 2px solid var(--gold);
+    padding: 12px 16px; border-radius: 8px;
+    margin-bottom: 20px;
+    display: block;
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+  }
+
+  .scroll-locked-list {
+    max-height: 420px;
+    overflow-y: scroll;
+    border: 1.5px solid var(--light-grey);
+    border-radius: 10px;
+    padding: 10px;
+    scroll-behavior: smooth;
+  }
+  .scroll-locked-list .options-list {
+    gap: 6px;
+  }
+
+  .scroll-nudge {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 10px;
+    font-size: 12px; font-weight: 600;
+    color: var(--gold);
+    animation: nudgePulse 1.8s ease-in-out infinite;
+  }
+  .scroll-nudge.hidden { display: none; }
+  @keyframes nudgePulse {
+    0%, 100% { opacity: 1; transform: translateY(0); }
+    50% { opacity: 0.5; transform: translateY(3px); }
+  }
+
+  .btn-primary.locked {
+    background: var(--mid-grey);
+    cursor: not-allowed;
+    position: relative;
+  }
+
   /* ─── VALIDATION ─── */
   .error-msg {
     display: none;
@@ -510,12 +553,11 @@
     <div class="intro-card">
       <h1>Indonesia Mining Consultancy Survey</h1>
       <div class="intro-meta">
-        <span>~12 minutes</span>
+        <span>~20 minutes</span>
         <span>24 questions</span>
         <span>Confidential</span>
       </div>
-      <p>This survey is conducted by <strong>Thinker Media Group</strong> on behalf of a leading international mining consultancy. Your insights will inform research into the Indonesia mining services market.</p>
-      <p>We are interested in the perspectives of senior professionals across large miners, exploration and development groups, and local mining companies active in Indonesia.</p>
+      <p>This survey is conducted by <strong>Thinker Media Group</strong> to better understand the business environment for technical consultants to the mining sector in Indonesia. We are interested in the perspectives of senior professionals across large miners, exploration and development groups, and local mining companies active in Indonesia.</p>
       <p class="privacy-note">All responses are anonymous and confidential. Individual responses will not be attributed to you or your organisation. Data will be reported in aggregate only.</p>
       <div class="btn-row" style="justify-content:flex-start; margin-top:28px;">
         <button class="btn btn-primary" onclick="startSurvey()">Begin Survey →</button>
@@ -568,7 +610,7 @@
 // ══════════════════════════════════════════════════
 // CONFIGURATION
 // ══════════════════════════════════════════════════
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRXUWRBdX24qxm9m4kibOZV2nCjwTShm6YYNqa6ZPQmbAXo3I-8fkt5-fuv8H8VeDCKA/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyWTTcGeyKlHPmLCg-KG7kknxG_K_FiIlwRaitKb5fe_u11tD-h7bYg5wMUo4k4aplZ3A/exec';
 
 // ══════════════════════════════════════════════════
 // STATE
@@ -591,7 +633,8 @@ const SECTIONS = {
 };
 
 // Consultancy list (shared across Q1, Q2, Q3, Q4, Q5)
-const CONSULTANCIES = [
+// Shuffled once per session so order varies per respondent
+const CONSULTANCIES_BASE = [
   'AECOM','AKA Geosains Consulting','AFRY','AMC Consultants (AFRY)',
   'Aurecon','Ausenco','CSA Global (ERM)','DRA Global','ERM',
   'GeoMine Indonesia','GHD','GroundProbe (Orica)','Ground Risk Management (GRM)',
@@ -603,6 +646,17 @@ const CONSULTANCIES = [
   'Snowden Optiro (Datamine)','SRK','Tetra Tech Coffey','Wood',
   'Worley','WSP (incl. Golder)'
 ];
+
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const CONSULTANCIES = shuffleArray(CONSULTANCIES_BASE);
 
 const DISCIPLINES = [
   'Mineral Exploration','Mining Project Evaluation',
@@ -756,12 +810,14 @@ const QUESTIONS = [
     id: 'q1', section: 'AWARENESS',
     num: 1,
     text: 'Which of the following mining consulting firms are you aware of?',
-    sub: 'Please scroll through the full list and select all that you recognise.',
+    sub: null,
+    scrollWarning: 'Scroll to the bottom to review all companies in this list before making your selections.',
     type: 'multi',
     options: CONSULTANCIES.map(c => ({ val: c.toLowerCase().replace(/[^a-z0-9]/g,'_'), label: c })),
     other: true,
     required: true,
-    minSelect: 1
+    minSelect: 1,
+    requireScroll: true
   },
 
   // ── Q2: Discipline awareness (grid - filtered by Q1) ──
@@ -840,7 +896,7 @@ const QUESTIONS = [
       { val: 'mix_spec', label: 'A mix of large consultancies and smaller firms, with single-person specialists filling gaps' },
       { val: 'full_mix', label: 'A mix of large consultancies, smaller firms, and single-person specialists (all material in representation)' },
       { val: 'large_small', label: 'Large consultancies for major projects; small firms and specialists dominating the rest' },
-      { val: 'solo_dom', label: 'The market is dominated by single-person specialists' }
+      { val: 'solo_dom', label: 'The market is dominated by single-person consultants specialising in specific disciplines' }
     ],
     required: true
   },
@@ -865,7 +921,7 @@ const QUESTIONS = [
   {
     id: 'q7', section: 'DECISION',
     num: 7,
-    text: 'What factors have a material influence when choosing a mining consultancy for a new project?',
+    text: 'What factors have a MATERIAL influence when choosing a mining consultancy for a new project?',
     sub: 'Select all that apply.',
     type: 'multi',
     options: SELECTION_CRITERIA.map(c => ({ val: c.toLowerCase().replace(/[^a-z0-9]/g,'_'), label: c })),
@@ -1162,7 +1218,7 @@ const QUESTIONS = [
     id: 'q24', section: 'CAPITAL',
     num: 24,
     text: 'What type of advisory support would you need for capital raising or M&A?',
-    sub: 'Select all that apply.',
+    sub: 'Select all that are relevant. You will then be asked which is the most important.',
     type: 'multi',
     options: ADVISORY_TYPES.map(c => ({ val: c.toLowerCase().replace(/[^a-z0-9]/g,'_'), label: c })),
     condition: () => ['yes_12m','yes_3y'].includes(answers['q23']),
@@ -1218,6 +1274,11 @@ function showScreen(id) {
 }
 
 function goNext() {
+  const btn = document.getElementById('btn-next');
+  if (btn && btn.getAttribute('data-locked')) {
+    showErr(questionSequence[currentQ].id, 'Please scroll through the full list before continuing.');
+    return;
+  }
   const q = questionSequence[currentQ];
   if (!validateQ(q)) return;
   saveAnswer(q);
@@ -1275,6 +1336,13 @@ function renderQ(idx) {
   updateProgress();
   attachListeners(q);
   restoreAnswers(q);
+
+  // Lock Next for scroll-gated questions not yet scrolled
+  if (q.requireScroll && !scrollReached[q.id]) {
+    lockNext();
+  } else {
+    unlockNext();
+  }
 }
 
 function sectionLabel(sec) {
@@ -1287,6 +1355,7 @@ function buildQHTML(q, idx) {
   if (q.num) html += `<div class="q-number">Question ${q.num} of 24</div>`;
   html += `<div class="q-text">${q.text}</div>`;
   if (q.sub) html += `<div class="q-sub">${q.sub}</div>`;
+  if (q.scrollWarning) html += `<div class="q-scroll-warning">⚠ ${q.scrollWarning}</div>`;
 
   html += buildInputHTML(q);
 
@@ -1329,7 +1398,14 @@ function buildSingleHTML(q) {
 function buildMultiHTML(q) {
   const opts = resolveOptions(q);
   let html = `<div class="q-instruction">Select all that apply</div>`;
-  html += `<div class="options-list" id="opts-${q.id}">`;
+
+  if (q.requireScroll) {
+    html += `<div class="scroll-locked-list" id="scroll-list-${q.id}" onscroll="checkScrollReached('${q.id}', this)">`;
+    html += `<div class="options-list" id="opts-${q.id}">`;
+  } else {
+    html += `<div class="options-list" id="opts-${q.id}">`;
+  }
+
   opts.forEach(o => {
     html += `<div class="option-item${o.disq ? ' disqualify' : ''}" data-val="${o.val}" onclick="toggleMulti('${q.id}', '${o.val}', this, ${!!o.other})">
       <div class="option-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
@@ -1341,7 +1417,14 @@ function buildMultiHTML(q) {
       </div>`;
     }
   });
-  html += `</div>`;
+
+  if (q.requireScroll) {
+    html += `</div></div>`;
+    html += `<div class="scroll-nudge" id="scroll-nudge-${q.id}">▼ Scroll to see all firms</div>`;
+  } else {
+    html += `</div>`;
+  }
+
   return html;
 }
 
@@ -1720,6 +1803,38 @@ function restoreAnswers(q) {
 
 function attachListeners(q) {
   // For grid questions, just delegate via inline handlers
+}
+
+// ══════════════════════════════════════════════════
+// SCROLL GATE (Q1)
+// ══════════════════════════════════════════════════
+let scrollReached = {};
+
+function checkScrollReached(qId, el) {
+  // Reached bottom when scrollTop + clientHeight >= scrollHeight - small threshold
+  const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 20;
+  if (atBottom && !scrollReached[qId]) {
+    scrollReached[qId] = true;
+    unlockNext();
+    const nudge = document.getElementById('scroll-nudge-' + qId);
+    if (nudge) nudge.classList.add('hidden');
+  }
+}
+
+function lockNext() {
+  const btn = document.getElementById('btn-next');
+  if (btn) {
+    btn.classList.add('locked');
+    btn.setAttribute('data-locked', 'true');
+  }
+}
+
+function unlockNext() {
+  const btn = document.getElementById('btn-next');
+  if (btn) {
+    btn.classList.remove('locked');
+    btn.removeAttribute('data-locked');
+  }
 }
 
 // ══════════════════════════════════════════════════
