@@ -316,6 +316,7 @@
   }
   .leader-pill:hover { border-color: var(--gold); color: var(--gold); }
   .leader-pill.selected { background: var(--gold); border-color: var(--gold); color: var(--white); font-weight: 600; }
+  .leader-pill.claimed { background: #f0f0f0; color: #bbb; cursor: not-allowed; border-color: #e0e0e0; pointer-events: none; }
 
   /* rating stars / buttons inside accordion (Q3) */
   .crit-list { display: flex; flex-direction: column; gap: 10px; }
@@ -730,7 +731,7 @@ const DELAY_FACTORS = [
 const LOCAL_RISKS = [
   'Misalignment of incentives','Governance / transparency issues',
   'Capability gaps','Reputation risk','Legal / contractual issues',
-  'Cultural misunderstanding'
+  'Cultural misunderstanding','No local presence in other regions'
 ];
 
 const COMMODITIES = [
@@ -813,8 +814,10 @@ const QUESTIONS = [
     sub: null,
     scrollWarning: 'Scroll to the bottom to review all companies in this list before making your selections.',
     type: 'multi',
-    options: CONSULTANCIES.map(c => ({ val: c.toLowerCase().replace(/[^a-z0-9]/g,'_'), label: c })),
-    other: true,
+    options: [
+      ...CONSULTANCIES.map(c => ({ val: c.toLowerCase().replace(/[^a-z0-9]/g,'_'), label: c })),
+      { val: 'other', label: 'Other', other: true }
+    ],
     required: true,
     minSelect: 1,
     requireScroll: true
@@ -831,10 +834,12 @@ const QUESTIONS = [
     cols: DISCIPLINES,
     followup: {
       id: 'q2_leader',
-      text: 'Which consultancy do you recognise as the LEADER in each discipline?',
+      text: 'Do you consider this firm a sector leader in any of these fields? If so, please indicate.',
       type: 'grid_single',
       rows: 'from_q1_consultancies',
-      cols: DISCIPLINES
+      cols: DISCIPLINES,
+      exclusive: true,
+      required: false
     },
     required: true
   },
@@ -1593,7 +1598,16 @@ function updateFollowup(qId) {
 
     const mainQ = questionSequence.find(q => q.id === fu.sourceQ);
     const mainOpts = resolveOptions(mainQ);
+    // Include all selected options except bare 'other' placeholder
     const filteredOpts = mainOpts.filter(o => selected.includes(o.val) && o.val !== 'other');
+
+    // If 'other' was selected and the respondent typed text, add it as a selectable option
+    if (selected.includes('other')) {
+      const otherText = answers[qId + '_other'] || (document.getElementById('other-text-' + qId) || {}).value || '';
+      if (otherText.trim()) {
+        filteredOpts.push({ val: 'other', label: otherText.trim() });
+      }
+    }
 
     fuOpts.innerHTML = filteredOpts.map(o =>
       `<div class="option-item radio" data-val="${o.val}" onclick="selectFollowup('${qId}', '${fu.id}', '${o.val}', this)">
@@ -1697,32 +1711,67 @@ function rebuildLeaderPills(qId, ri, safeId, q) {
   const container = document.getElementById(`${safeId}-leaders`);
   if (!container) return;
 
-  // get selected disciplines for this row
   const all = answers[qId] || {};
   const selectedCols = Object.keys(all)
     .filter(k => k.startsWith(ri + '_'))
     .map(k => parseInt(k.split('_')[1]));
 
   if (selectedCols.length === 0) {
-    container.innerHTML = '<span style="font-size:12px;color:var(--mid-grey);">Select disciplines above to choose a leader.</span>';
+    container.innerHTML = '<span style="font-size:12px;color:var(--mid-grey);">Select disciplines above to indicate a leader.</span>';
     return;
   }
 
-  const currentLeader = (answers[leaderId] || {})[ri];
+  const leaderAnswers = answers[leaderId] || {};
+  const currentLeader = leaderAnswers[ri];
+
+  // Build set of disciplines already claimed by OTHER firms
+  const claimedByOther = new Set();
+  Object.entries(leaderAnswers).forEach(([rowIdx, colIdx]) => {
+    if (parseInt(rowIdx) !== ri) claimedByOther.add(colIdx);
+  });
+
   container.innerHTML = selectedCols.map(ci => {
     const disc = q.cols[ci];
     const isSelected = currentLeader === ci;
-    return `<span class="leader-pill${isSelected ? ' selected' : ''}" onclick="selectLeader('${leaderId}',${ri},${ci},'${safeId}',this)">${disc}</span>`;
+    const isClaimed = claimedByOther.has(ci);
+    const claimedRow = isClaimed ? Object.entries(leaderAnswers).find(([r,c]) => parseInt(r) !== ri && c === ci) : null;
+    const claimedFirm = claimedRow ? resolveGridRows(q)[parseInt(claimedRow[0])] : '';
+    if (isClaimed && !isSelected) {
+      return `<span class="leader-pill claimed" title="Already selected as leader for ${claimedFirm}">${disc} <span style="font-size:10px;opacity:0.6;">(taken)</span></span>`;
+    }
+    return `<span class="leader-pill${isSelected ? ' selected' : ''}" onclick="selectLeader('${qId}','${leaderId}',${ri},${ci},'${safeId}',this)">${disc}</span>`;
   }).join('');
 }
 
-function selectLeader(leaderId, ri, ci, safeId, el) {
+function selectLeader(qId, leaderId, ri, ci, safeId, el) {
   if (!answers[leaderId]) answers[leaderId] = {};
+
+  // Remove this discipline from any other firm that previously held it
+  Object.keys(answers[leaderId]).forEach(rowIdx => {
+    if (parseInt(rowIdx) !== ri && answers[leaderId][rowIdx] === ci) {
+      delete answers[leaderId][rowIdx];
+    }
+  });
+
   answers[leaderId][ri] = ci;
-  // Update pill UI
+
+  // Update pill UI for this firm
   const container = el.parentElement;
   container.querySelectorAll('.leader-pill').forEach(p => p.classList.remove('selected'));
   el.classList.add('selected');
+
+  // Rebuild pills for all other firms to reflect the updated claimed set
+  const q = questionSequence.find(q => q.id === qId);
+  if (!q) return;
+  const rows = resolveGridRows(q);
+  rows.forEach((firm, otherRi) => {
+    if (otherRi === ri) return;
+    const otherSafeId = 'acc_' + qId + '_' + otherRi;
+    const otherContainer = document.getElementById(`${otherSafeId}-leaders`);
+    if (otherContainer && otherContainer.children.length > 0) {
+      rebuildLeaderPills(qId, otherRi, otherSafeId, q);
+    }
+  });
 }
 
 function setRating(qId, ri, ci, score, safeId) {
@@ -2016,12 +2065,14 @@ function validateGridLeader(q) {
 
   if (rowsWithSelections.size === 0) return true;
 
+  // Q2 leader followup is optional — if the followup is marked required:false, skip hard check
+  if (q.followup && q.followup.required === false) return true;
+
   // Check every row that has selections also has a leader
   for (const ri of rowsWithSelections) {
     if (leaderAnswers[ri] === undefined) {
       const firmName = rows[ri] || ('firm ' + ri);
       showErr(q.id, `Please select a leader discipline for ${firmName} before continuing.`);
-      // Try to scroll the relevant accordion into view
       const accEl = document.getElementById(`acc_${q.id}_${ri}`);
       if (accEl) {
         accEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
