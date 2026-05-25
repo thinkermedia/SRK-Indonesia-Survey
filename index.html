@@ -1419,7 +1419,7 @@ function buildMultiHTML(q) {
     </div>`;
     if (o.other) {
       html += `<div class="open-text-wrap" id="other-wrap-${q.id}" style="display:none;">
-        <input type="text" class="open-text-input" id="other-text-${q.id}" placeholder="Please specify…" style="min-height:44px; resize:none;" />
+        <input type="text" class="open-text-input" id="other-text-${q.id}" placeholder="Please specify…" style="min-height:44px; resize:none;" oninput="updateFollowup('${q.id}')" />
       </div>`;
     }
   });
@@ -1461,7 +1461,7 @@ function buildGridHTML(q) {
 
     // Leader follow-up lives inside same accordion card
     if (q.followup && q.followup.type === 'grid_single') {
-      html += `<div class="acc-leader-label">Which is the LEADER in each selected discipline?</div>
+      html += `<div class="acc-leader-label">Do you consider this firm a sector leader in any of these fields? If so, please indicate.</div>
         <div class="leader-opts" id="${safeId}-leaders"></div>`;
     }
     html += `</div></div>`;
@@ -2019,7 +2019,12 @@ function validateFollowup(q) {
     if (selected.length === 0) return true; // nothing selected in main, followup hidden
 
     const mainOpts = resolveOptions(q);
+    // Build the same set that updateFollowup renders — named options + Other if text was typed
     const selectableOpts = mainOpts.filter(o => selected.includes(o.val) && o.val !== 'other');
+    const otherText = answers[q.id + '_other'] || '';
+    if (selected.includes('other') && otherText.trim()) {
+      selectableOpts.push({ val: 'other', label: otherText.trim() });
+    }
     if (selectableOpts.length === 0) return true;
 
     if (!answers[fu.id]) {
