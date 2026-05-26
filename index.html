@@ -1248,6 +1248,22 @@ function getRef() {
 
 function startSurvey() {
   respondentRef = getRef();
+
+  // One-time use: block if this ref has already been submitted
+  const storageKey = 'srk_survey_done_' + respondentRef;
+  if (localStorage.getItem(storageKey) === 'true') {
+    // Replace intro card content to show already-completed message
+    const introCard = document.querySelector('#screen-intro .intro-card');
+    if (introCard) {
+      introCard.innerHTML = `
+        <h1 style="font-family:'DM Serif Display',serif;font-size:24px;color:var(--navy);margin-bottom:16px;">Survey Already Completed</h1>
+        <p style="color:var(--text-light);font-size:15px;line-height:1.65;">This survey link has already been used. Each link can only be used once. If you believe this is an error, please contact <strong>sales@thinkermediagroup.com</strong>.</p>
+        <div style="margin-top:20px;font-size:11px;color:var(--mid-grey);letter-spacing:0.08em;text-transform:uppercase;">Thinker Media Group &middot; thinkermediagroup.com</div>
+      `;
+    }
+    return;
+  }
+
   buildSequence();
   showScreen('screen-questions');
   renderQ(0);
@@ -1333,11 +1349,18 @@ function renderQ(idx) {
 
   // Back btn
   document.getElementById('btn-back').style.display = idx === 0 ? 'none' : 'inline-flex';
-  // Next vs Submit
-  // Rebuild sequence first so isLast reflects current conditional state
+
+  // Next vs Submit:
+  // Rebuild sequence to get current state, then determine button label.
+  // A question shows "Submit Survey" only if it is the last in the current sequence
+  // AND no questions exist in the master QUESTIONS list that are currently excluded
+  // by a condition (i.e. no conditional follower could still appear after this answer).
+  // This prevents Q23 showing "Submit Survey" before its answer is known.
   rebuildSequence();
   const isLast = idx >= questionSequence.length - 1;
-  document.getElementById('btn-next').textContent = isLast ? 'Submit Survey ✓' : 'Next →';
+  const hasConditionalFollower = QUESTIONS.some(qq => qq.condition && !questionSequence.includes(qq));
+  const showSubmit = isLast && !hasConditionalFollower;
+  document.getElementById('btn-next').textContent = showSubmit ? 'Submit Survey ✓' : 'Next →';
 
   updateProgress();
   attachListeners(q);
@@ -1962,17 +1985,24 @@ function validateQ(q) {
   //    AND every firm that has disciplines must have a leader chosen ──
   if (q.type === 'grid_multi') {
     const rows = resolveGridRows(q);
-    if (!rows || rows.length === 0) return true;
+    // If rows couldn't be resolved (Q1 not answered), treat as unanswerable — should not happen in normal flow
+    if (!rows || rows.length === 0) {
+      showErr(q.id, 'Please complete Question 1 before continuing.');
+      return false;
+    }
     const gridAnswers = answers[q.id] || {};
 
     // Every firm must have at least one discipline ticked
     for (let ri = 0; ri < rows.length; ri++) {
-      const hasDisc = Object.keys(gridAnswers).some(k => k.startsWith(ri + '_'));
+      const hasDisc = Object.keys(gridAnswers).some(k => k.startsWith(ri + '_') && gridAnswers[k] === true);
       if (!hasDisc) {
         const firmName = rows[ri];
-        showErr(q.id, `Please select at least one discipline for ${firmName}.`);
+        showErr(q.id, `Please select at least one discipline for "${firmName}" before continuing.`);
         const accEl = document.getElementById(`acc_${q.id}_${ri}`);
-        if (accEl) { accEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); accEl.classList.add('open'); }
+        if (accEl) {
+          accEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          accEl.classList.add('open');
+        }
         return false;
       }
     }
@@ -2123,6 +2153,13 @@ async function submitAll() {
     }
   } catch(e) {
     console.warn('Submit error', e);
+  }
+
+  // Mark this ref as used so the link cannot be reused
+  try {
+    localStorage.setItem('srk_survey_done_' + respondentRef, 'true');
+  } catch(e) {
+    // localStorage may be unavailable in some contexts — non-fatal
   }
 
   toast.classList.remove('show');
